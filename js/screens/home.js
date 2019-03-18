@@ -15,23 +15,23 @@ class Page extends Component {
 
     SplashScreen.hide();
 
-    this.fakeTime();
-
-    this.timer = TimerMixin.setInterval(() => this.socket.send(JSON.stringify(new Date())), 1000);
-
     if (pkClient) {
+      pkClient.addBrewer('ui_scaffold.example_brew', brewer => TimerMixin.setInterval(() => brewer.brewJSON([{ time: new Date() }]), 1000));
       pkClient.addPatron('ui_scaffold.example_brew', patron => patron.on('message', this.writeDataToState));
       pkClient.addBrewer('ui_scaffold.example_brew2', brewer => this.brewer = brewer);
       pkClient.addPatron('ui_scaffold.example_brew2', patron => patron.on('message', this.writeDataToState2));
     } else {
-      console.log('no pkClient');
+      // TODO: FIGURE OUT WHY THIS WORKS AND THE PK CLIENT DOESN'T
+      this.fakeTime();
     }
   };
 
   fakeTime = () => {
     this.socket = new WebSocket('wss://echo.websocket.org/');
-    this.socket.onopen = () => this.socket.send(new Date().toGMTString());
-    this.socket.onmessage = ({ data }) => this.setState({ currentTime: new Date(data) });
+
+    // OF NOTE, THIS TAKES A FEW SECONDS TO ACTUALLY EXECUTE... SO MAYBE IT'S SOMETHING TO DO WITH A TIMEOUT IN THE PK CLIENT?
+    this.socket.onopen = () => TimerMixin.setInterval(() => this.socket.send(JSON.stringify(new Date())), 1000);
+    this.socket.onmessage = ({ data }) => { console.log(new Date(JSON.parse(data))); this.setState({ currentTime: new Date(data) }); };
   };
 
   writeDataToState = (data) => {
@@ -64,11 +64,11 @@ class Page extends Component {
     const { currentTime, historicalTime, brewedTime, historicalBrewedTime, hours, minutes } = this.state;
 
     return (
-      <View style={styles.topRow}>
-        <View>
+      <View>
+        <View style={styles.topRow}>
           <Text>UI Scaffold / Pubkeeper Demo</Text>
           <Text>Sending signals to and receiving signals from nio services using the Pubkeeper javascript client.</Text>
-          <Divider />
+          <Divider style={styles.divider} />
         </View>
         <View style={styles.bottomRow}>
           <View style={styles.rowCol}>
@@ -76,7 +76,7 @@ class Page extends Component {
             <Text>- Connect to the Pubkeeper Server</Text>
             <Text>- Publish the time every second to ui_scaffold.example_brew</Text>
             <Text>- Inject the connected pkClient via the withPubkeeper() method</Text>
-            <Divider />
+            <Divider style={styles.divider} />
             <AnalogClock
               colorClock="#fff"
               colorNumber="#333"
@@ -92,23 +92,27 @@ class Page extends Component {
             <Text>- Create a Patron of ui_scaffold.example_brew</Text>
             <Text>- Assign inbound signals on that topic to an event handler writeDataToState</Text>
             <Text>- Update the Clock and historical array based on updated local state</Text>
-            <Divider />
-            <ScrollView style={[styles.scrollView, { height: 160 }]}>
+            <Divider style={styles.divider} />
+            <View style={[styles.scrollViewHolder, { height: 160 }]}>
+              <ScrollView>
               {historicalTime && historicalTime.map(h => (<Text key={h}>{h}</Text>))}
-            </ScrollView>
+              </ScrollView>
+            </View>
           </View>
           <View style={styles.rowCol}>
             <Text>The right side uses the pkClient to:</Text>
             <Text>- Create a new Brewer and new Patron for topic ui_scaffold.example_brew2</Text>
             <Text>- Brew the current time when you click the button</Text>
             <Text>- Assign inbound signals on that topic to an event handler writeDataToState2</Text>
-            <Divider />
+            <Divider style={styles.divider} />
             <TouchableOpacity onPress={this.brewCurrentTimestamp} style={styles.brewButton}>
               <Text style={{color:'#fff'}}>Brew Current Time</Text>
             </TouchableOpacity>
-            <ScrollView style={[styles.scrollView, { height: 110, marginTop: 14 }]}>
+            <View style={[styles.scrollViewHolder, { height: 110, marginTop: 14 }]}>
+              <ScrollView>
               {historicalBrewedTime && historicalBrewedTime.map((h, i) => (<Text key={i}>{h}</Text>))}
-            </ScrollView>
+              </ScrollView>
+            </View>
           </View>
         </View>
       </View>
@@ -119,33 +123,34 @@ class Page extends Component {
 
 const styles = StyleSheet.create({
   topRow: {
-    flex: 1,
-    flexDirection: 'column',
     padding: 20,
+    height: 90,
   },
   bottomRow: {
     flex: 1,
     flexDirection: 'row',
-    padding: 20,
+    justifyContent: 'space-between',
+  },
+  divider: {
+    marginVertical: 20,
   },
   rowCol: {
-    flex: .3,
+    flex: .32,
+    padding: 20,
   },
-  scrollView: {
-    flex: 1,
+  scrollViewHolder: {
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: '#e6e9ee',
     borderRadius: 4,
-    padding: 10,
+    height: 150,
   },
   brewButton: {
-    padding: 3,
+    padding: 10,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#403b8a',
-    height: 20,
+    backgroundColor: '#3cafda',
     borderRadius: 10,
   },
 });
