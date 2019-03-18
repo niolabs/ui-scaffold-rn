@@ -1,0 +1,37 @@
+{
+  "name": "ui-scaffold-rn",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@pubkeeper/browser-client": "^4.0.4",
+    "react": "16.8.4",
+    "react-native": "0.59.1",
+    "react-native-clock-analog": "0.0.1",
+    "react-native-elements": "^1.1.0",
+    "react-native-paper": "^2.13.0",
+    "react-native-splash-screen": "^3.2.0",
+    "react-native-svg": "^9.3.3",
+    "react-native-vector-icons": "^6.4.1",
+    "react-navigation": "^3.4.1",
+    "react-navigation-material-bottom-tabs": "^1.0.0",
+    "react-timer-mixin": "^0.13.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/runtime": "^7.3.4",
+    "babel-jest": "^24.5.0",
+    "jest": "^24.5.0",
+    "metro-react-native-babel-preset": "^0.53.1",
+    "react-test-renderer": "16.8.4",
+    "util": "^0.11.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
